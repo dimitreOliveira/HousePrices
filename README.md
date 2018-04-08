@@ -1,8 +1,8 @@
 ![](https://kaggle2.blob.core.windows.net/competitions/kaggle/5407/media/housesbanner.png)
 
-#Deep Learning regression using Tensorflow for house prices prediction.
+# Deep Learning regression using Tensorflow for house prices prediction.
 
-###House Prices: Advanced Regression Techniques
+### House Prices: Advanced Regression Techniques
 
 link for the kaggle competition: https://www.kaggle.com/c/house-prices-advanced-regression-techniques
 
