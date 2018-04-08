@@ -1,12 +1,12 @@
 import tensorflow as tf
 from tensorflow.python.framework import ops
 from methods import compute_cost, create_placeholders, forward_propagation, initialize_parameters, rmse, rmsle, \
-    l2_regularizer, forward_propagation_dropout, build_submission_name, plot_model_cost
+    l2_regularizer, build_submission_name, plot_model_cost
 from dataset import mini_batches
 
 
 def model(train_set, train_labels, validation_set, validation_labels, layers_dims, learning_rate=0.01, num_epochs=15001,
-          print_cost=True, plot_cost=True, use_l2=False, l2_beta=0.01, use_dropout=False, keep_prob=0.7,
+          print_cost=True, plot_cost=True, use_l2=False, l2_beta=0.01, keep_prob=1.0,
           hidden_activation='relu', return_max_acc=False, minibatch_size=0, lr_decay=0):
     """
     Implements a n-layer tensorflow neural network: LINEAR->RELU*(n times)->LINEAR->SOFTMAX.
@@ -21,7 +21,6 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
     :param plot_cost: True to plot the train and validation cost
     :param use_l2: True to use l2 regularization
     :param l2_beta: beta parameter for the l2 regularization
-    :param use_dropout: True to use dropout regularization
     :param keep_prob: probability to keep each node of each hidden layer (dropout)
     :param hidden_activation: activation function to be used on the hidden layers
     :param return_max_acc: True to return the highest accuracy from all epochs
@@ -51,14 +50,11 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
     tf_valid_dataset = tf.cast(tf.constant(validation_set), tf.float32)
     parameters = initialize_parameters(layers_dims)
 
-    if use_dropout is True:
-        fw_output = forward_propagation_dropout(x, parameters, keep_prob, hidden_activation)
-    else:
-        fw_output = forward_propagation(x, parameters, hidden_activation)
+    fw_output = forward_propagation(x, parameters, keep_prob, hidden_activation)
     train_prediction = fw_output
     train_cost = compute_cost(fw_output, y)
 
-    fw_output_valid = forward_propagation(tf_valid_dataset, parameters, hidden_activation)
+    fw_output_valid = forward_propagation(tf_valid_dataset, parameters, keep_prob, hidden_activation)
     valid_prediction = fw_output_valid
     validation_cost = compute_cost(fw_output_valid, validation_labels)
 
@@ -126,9 +122,8 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
         #print('Lowest cost: {:.2f} at epoch {}'.format(best_iteration[0], best_iteration[1]))
         #print('Highest accuracy: {:.2f} at epoch {}'.format(best_iteration[2], best_iteration[3]))
 
-        submission_name = build_submission_name(train_cost, validation_cost, layers_dims,
-                                                num_epochs, lr_decay, learning_rate, use_l2, l2_beta, use_dropout,
-                                                keep_prob, minibatch_size, num_examples)
+        submission_name = build_submission_name(train_cost, validation_cost, layers_dims, num_epochs, lr_decay,
+                                                learning_rate, use_l2, l2_beta, keep_prob, minibatch_size, num_examples)
 
         if plot_cost is True:
             plot_model_cost(train_costs, validation_costs, submission_name)

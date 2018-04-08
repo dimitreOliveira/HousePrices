@@ -18,29 +18,7 @@ def create_placeholders(input_size, output_size):
     return x, y
 
 
-def forward_propagation(x, parameters, hidden_activation='relu'):
-    """
-    Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR-> computation
-    :param x: data, pandas array of shape (input size, number of examples)
-    :param parameters: output of initialize_parameters()
-    :param hidden_activation: activation function of the hidden layers
-    :return: last LINEAR value
-    """
-
-    a = x
-    n_layers = len(parameters) // 2  # number of layers in the neural network
-
-    # Implement [LINEAR -> RELU]*(L-1).
-    for l in range(1, n_layers):
-        a_prev = a
-        a = linear_activation_forward(a_prev, parameters['w%s' % l], parameters['b%s' % l], hidden_activation)
-
-    al = tf.matmul(a, parameters['w%s' % n_layers]) + parameters['b%s' % n_layers]
-
-    return al
-
-
-def forward_propagation_dropout(x, parameters, keep_prob, hidden_activation='relu'):
+def forward_propagation(x, parameters, keep_prob=1.0, hidden_activation='relu'):
     """
     Implement forward propagation with dropout for the [LINEAR->RELU]*(L-1)->LINEAR-> computation
     :param x: data, pandas array of shape (input size, number of examples)
@@ -53,13 +31,14 @@ def forward_propagation_dropout(x, parameters, keep_prob, hidden_activation='rel
     a_dropout = x
     n_layers = len(parameters) // 2  # number of layers in the neural network
 
-    # Implement [LINEAR -> RELU]*(L-1), with dropout
     for l in range(1, n_layers):
         a_prev = a_dropout
-        a = linear_activation_forward(a_prev, parameters['w%s' % l], parameters['b%s' % l], hidden_activation)
-        a_dropout = tf.nn.dropout(a, keep_prob)
+        a_dropout = linear_activation_forward(a_prev, parameters['w%s' % l], parameters['b%s' % l], hidden_activation)
 
-    al = tf.matmul(parameters['w%s' % n_layers], a_dropout) + parameters['b%s' % n_layers]
+        if keep_prob < 1.0:
+            a_dropout = tf.nn.dropout(a_dropout, keep_prob)
+
+    al = tf.matmul(a_dropout, parameters['w%s' % n_layers]) + parameters['b%s' % n_layers]
 
     return al
 
@@ -203,7 +182,7 @@ def l2_regularizer(cost, l2_beta, parameters, n_layers):
 
 
 def build_submission_name(train_accuracy, validation_accuracy, layers_dims, num_epochs, lr_decay,
-                          learning_rate, use_l2, l2_beta, use_dropout, keep_prob, minibatch_size, num_examples):
+                          learning_rate, use_l2, l2_beta, keep_prob, minibatch_size, num_examples):
     """
     builds a string (submission file name), based on the model parameters
     :param train_accuracy: model train accuracy
@@ -214,7 +193,6 @@ def build_submission_name(train_accuracy, validation_accuracy, layers_dims, num_
     :param learning_rate: model learning rate
     :param use_l2: if model uses l2 normalization
     :param l2_beta: beta used on l2 normalization
-    :param use_dropout: if model uses dropout normalization
     :param keep_prob: keep probability used on dropout normalization
     :param minibatch_size: model mini batch size (0 to do not use mini batches)
     :param num_examples: number of model examples (training data)
@@ -231,7 +209,7 @@ def build_submission_name(train_accuracy, validation_accuracy, layers_dims, num_
     if use_l2 is True:
         submission_name = 'l2{}-'.format(l2_beta) + submission_name
 
-    if use_dropout is True:
+    if keep_prob < 1:
         submission_name = 'dk{}-'.format(keep_prob) + submission_name
 
     if minibatch_size != num_examples:

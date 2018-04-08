@@ -1,15 +1,16 @@
-import pandas as pd
+# import pandas as pd
 # import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
 
 from model import model
 from methods import predict
-from dataset import load_data, convert_to_one_hot, pre_process_data, output_submission
+from dataset import load_data, pre_process_data, output_submission
 
 
 # optional, sets output of data when printed
-desired_width = 320
-pd.set_option('display.width', desired_width)
+# desired_width = 320
+# pd.set_option('display.width', desired_width)
 # np.set_printoptions(linewidth=desired_width)
 
 
@@ -47,17 +48,15 @@ test_pre = test_pre.drop(['LotFrontage', 'Alley', 'MasVnrType', 'MasVnrArea', 'F
 # drop columns with categorical values
 train_pre = train_pre.drop(['HouseStyle', 'RoofMatl', 'Heating', 'Condition2'], axis=1)
 test_pre = test_pre.drop(['HouseStyle', 'RoofMatl', 'Heating', 'Condition2'], axis=1)
-# train_pre = train_pre.drop(['HouseStyle', 'RoofStyle', 'RoofMatl', 'ExterQual', 'BldgType', 'ExterCond', 'Foundation',
-#                             'Heating', 'HeatingQC', 'CentralAir', 'Condition1', 'Condition2', 'Neighborhood',
-#                             'LandSlope', 'LotConfig', 'LandContour', 'LotShape', 'Street', 'PavedDrive',
-#                             'SaleCondition'], axis=1)
-# test_pre = test_pre.drop(['HouseStyle', 'RoofStyle', 'RoofMatl', 'ExterQual', 'BldgType', 'ExterCond', 'Foundation',
-#                           'Heating', 'HeatingQC', 'CentralAir', 'Condition1', 'Condition2', 'Neighborhood', 'LandSlope',
-#                           'LotConfig', 'LandContour', 'LotShape', 'Street', 'PavedDrive', 'SaleCondition'], axis=1)
 
 # drop unwanted columns
 train_pre = train_pre.drop(['Id'], axis=1).as_matrix()
 test_pre = test_pre.drop(['Id'], axis=1).as_matrix()
+
+# scale values
+min_max_scaler = preprocessing.MinMaxScaler()
+train_pre = min_max_scaler.fit_transform(train_pre)
+test_pre = min_max_scaler.fit_transform(test_pre)
 
 X_train, X_valid, Y_train, Y_valid = train_test_split(train_pre, train_raw_labels, test_size=0.3, random_state=1)
 
@@ -69,9 +68,8 @@ learning_rate = 0.01
 layers_dims = [input_size, 100, output_size]
 
 trained_parameters, submission_name = model(X_train, Y_train, X_valid, Y_valid, layers_dims, num_epochs=num_epochs,
-                                            learning_rate=learning_rate, use_l2=False, use_dropout=False,
-                                            print_cost=False, plot_cost=True, l2_beta=0.01, keep_prob=0.8,
-                                            return_max_acc=False)
+                                            learning_rate=learning_rate, use_l2=False, print_cost=False, plot_cost=True,
+                                            l2_beta=0.01, keep_prob=0.9, return_max_acc=False)
 print(submission_name)
 
 prediction = list(map(lambda val: float(val), predict(test_pre, trained_parameters)))
