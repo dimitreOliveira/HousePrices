@@ -92,9 +92,6 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
                 _, minibatch_train_cost, prediction, minibatch_validation_cost = sess.run(
                     [optimizer, train_cost, train_prediction, validation_cost], feed_dict=feed_dict)
 
-                # _, minibatch_train_cost, prediction = sess.run(
-                #     [optimizer, train_cost, train_prediction], feed_dict=feed_dict)
-
                 train_epoch_cost += minibatch_train_cost / num_minibatches
                 validation_epoch_cost += minibatch_validation_cost / num_minibatches
 
