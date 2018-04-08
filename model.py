@@ -40,7 +40,7 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
     train_costs = []
     validation_costs = []
     prediction = []
-    best_iteration = [float('inf'), 0, float('-inf'), 0]
+    best_iteration = [float('inf'), 0]
     best_acc_params = None
     if minibatch_size == 0:
         minibatch_size = num_examples
@@ -94,9 +94,10 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
             train_accuracy = rmse(prediction, minibatch_Y)
             validation_accuracy = rmse(valid_prediction.eval(), validation_labels)
 
-            # if validation_epoch_cost < best_iteration[0]:
-            #     best_iteration[0] = validation_epoch_cost
-            #     best_iteration[1] = epoch
+            if return_max_acc is True and validation_epoch_cost < best_iteration[0]:
+                best_iteration[0] = validation_epoch_cost
+                best_iteration[1] = epoch
+                best_acc_params = sess.run(parameters)
 
             if print_cost is True and epoch % 500 == 0:
                 print("Train cost after epoch %i: %f" % (epoch, train_epoch_cost))
@@ -119,8 +120,7 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
         print('Validation rmse: {:.4f}'.format(rmse(valid_prediction.eval(), validation_labels)))
         print('Train rmsle: {:.4f}'.format(train_cost))
         print('Validation rmsle: {:.4f}'.format(validation_cost))
-        #print('Lowest cost: {:.2f} at epoch {}'.format(best_iteration[0], best_iteration[1]))
-        #print('Highest accuracy: {:.2f} at epoch {}'.format(best_iteration[2], best_iteration[3]))
+        print('Lowest rmse: {:.2f} at epoch {}'.format(best_iteration[0], best_iteration[1]))
 
         submission_name = build_submission_name(train_cost, validation_cost, layers_dims, num_epochs, lr_decay,
                                                 learning_rate, use_l2, l2_beta, keep_prob, minibatch_size, num_examples)

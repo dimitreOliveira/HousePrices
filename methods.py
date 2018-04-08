@@ -149,20 +149,6 @@ def rmsle(predictions, labels):
     return prediction_cost
 
 
-def minibatch_accuracy(predictions, labels):
-    """
-    calculate accuracy between two data sets
-    :param predictions: data set of predictions
-    :param labels: data set of labels (real values)
-    :return: percentage of correct predictions
-    """
-
-    prediction_size = predictions.shape[0]
-    prediction_accuracy = np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1)) / prediction_size
-
-    return 100 * prediction_accuracy
-
-
 def l2_regularizer(cost, l2_beta, parameters, n_layers):
     """
     Function to apply l2 regularization to the model
@@ -228,22 +214,6 @@ def plot_model_cost(train_costs, validation_costs, submission_name):
     plt.plot(np.squeeze(train_costs), label='Train cost')
     plt.plot(np.squeeze(validation_costs), label='Validation cost')
     plt.ylabel('cost')
-    plt.xlabel('iterations (per tens)')
-    plt.title("Model: " + submission_name)
-    plt.legend()
-    plt.show()
-
-
-def plot_model_accuracy(train_accuracies, validation_accuracies, submission_name):
-    """
-    :param train_accuracies: array with the accuracies from the model training
-    :param validation_accuracies: array with the accuracies from the model validation
-    :param submission_name:  name of the submission (used for the plot title)
-    :return:
-    """
-    plt.plot(np.squeeze(train_accuracies), label='Train rmse')
-    plt.plot(np.squeeze(validation_accuracies), label='Validation rmse')
-    plt.ylabel('RMSE')
     plt.xlabel('iterations (per tens)')
     plt.title("Model: " + submission_name)
     plt.legend()
