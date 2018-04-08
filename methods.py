@@ -162,13 +162,14 @@ def l2_regularizer(cost, l2_beta, parameters, n_layers):
     regularizer = 0
     for i in range(1, n_layers):
         regularizer += tf.nn.l2_loss(parameters['w%s' % i])
-        cost = tf.reduce_mean(cost + l2_beta * regularizer)
+
+    cost = tf.reduce_mean(cost + l2_beta * regularizer)
 
     return cost
 
 
 def build_submission_name(train_accuracy, validation_accuracy, layers_dims, num_epochs, lr_decay,
-                          learning_rate, use_l2, l2_beta, keep_prob, minibatch_size, num_examples):
+                          learning_rate, l2_beta, keep_prob, minibatch_size, num_examples):
     """
     builds a string (submission file name), based on the model parameters
     :param train_accuracy: model train accuracy
@@ -177,7 +178,6 @@ def build_submission_name(train_accuracy, validation_accuracy, layers_dims, num_
     :param num_epochs: model number of epochs
     :param lr_decay: model learning rate decay
     :param learning_rate: model learning rate
-    :param use_l2: if model uses l2 normalization
     :param l2_beta: beta used on l2 normalization
     :param keep_prob: keep probability used on dropout normalization
     :param minibatch_size: model mini batch size (0 to do not use mini batches)
@@ -192,7 +192,7 @@ def build_submission_name(train_accuracy, validation_accuracy, layers_dims, num_
     else:
         submission_name = 'lr{}-'.format(learning_rate) + submission_name
 
-    if use_l2 is True:
+    if l2_beta > 0:
         submission_name = 'l2{}-'.format(l2_beta) + submission_name
 
     if keep_prob < 1:

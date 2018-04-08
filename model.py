@@ -6,8 +6,8 @@ from dataset import mini_batches
 
 
 def model(train_set, train_labels, validation_set, validation_labels, layers_dims, learning_rate=0.01, num_epochs=15001,
-          print_cost=True, plot_cost=True, use_l2=False, l2_beta=0.01, keep_prob=1.0,
-          hidden_activation='relu', return_max_acc=False, minibatch_size=0, lr_decay=0):
+          print_cost=True, plot_cost=True, l2_beta=0., keep_prob=1.0, hidden_activation='relu', return_max_acc=False,
+          minibatch_size=0, lr_decay=0):
     """
     Implements a n-layer tensorflow neural network: LINEAR->RELU*(n times)->LINEAR->SOFTMAX.
     :param train_set: training set
@@ -19,7 +19,6 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
     :param num_epochs: number of epochs of the optimization loop
     :param print_cost: True to print the cost every 500 epochs
     :param plot_cost: True to plot the train and validation cost
-    :param use_l2: True to use l2 regularization
     :param l2_beta: beta parameter for the l2 regularization
     :param keep_prob: probability to keep each node of each hidden layer (dropout)
     :param hidden_activation: activation function to be used on the hidden layers
@@ -50,15 +49,13 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
     tf_valid_dataset = tf.cast(tf.constant(validation_set), tf.float32)
     parameters = initialize_parameters(layers_dims)
 
-    fw_output = forward_propagation(x, parameters, keep_prob, hidden_activation)
-    train_prediction = fw_output
-    train_cost = compute_cost(fw_output, y)
+    fw_output_train = forward_propagation(x, parameters, keep_prob, hidden_activation)
+    train_cost = compute_cost(fw_output_train, y)
 
     fw_output_valid = forward_propagation(tf_valid_dataset, parameters, keep_prob, hidden_activation)
-    valid_prediction = fw_output_valid
     validation_cost = compute_cost(fw_output_valid, validation_labels)
 
-    if use_l2 is True:
+    if l2_beta > 0:
         train_cost = l2_regularizer(train_cost, l2_beta, parameters, n_layers)
         validation_cost = l2_regularizer(validation_cost, l2_beta, parameters, n_layers)
 
@@ -83,16 +80,13 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
 
             for minibatch in minibatches:
                 (minibatch_X, minibatch_Y) = minibatch
-
                 feed_dict = {x: minibatch_X, y: minibatch_Y}
+
                 _, minibatch_train_cost, prediction, minibatch_validation_cost = sess.run(
-                    [optimizer, train_cost, train_prediction, validation_cost], feed_dict=feed_dict)
+                    [optimizer, train_cost, fw_output_train, validation_cost], feed_dict=feed_dict)
 
                 train_epoch_cost += minibatch_train_cost / num_minibatches
                 validation_epoch_cost += minibatch_validation_cost / num_minibatches
-
-            train_accuracy = rmse(prediction, minibatch_Y)
-            validation_accuracy = rmse(valid_prediction.eval(), validation_labels)
 
             if return_max_acc is True and validation_epoch_cost < best_iteration[0]:
                 best_iteration[0] = validation_epoch_cost
@@ -113,17 +107,17 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
             parameters = sess.run(parameters)
         print("Parameters have been trained!")
 
-        train_cost = rmsle(prediction, train_labels)
-        validation_cost = rmsle(valid_prediction.eval(), validation_labels)
+        train_cost = rmsle(prediction, minibatch_Y)
+        validation_cost = rmsle(fw_output_valid.eval(), validation_labels)
 
-        print('Train rmse: {:.4f}'.format(rmse(prediction, train_labels)))
-        print('Validation rmse: {:.4f}'.format(rmse(valid_prediction.eval(), validation_labels)))
+        print('Train rmse: {:.4f}'.format(rmse(prediction, minibatch_Y)))
+        print('Validation rmse: {:.4f}'.format(rmse(fw_output_valid.eval(), validation_labels)))
         print('Train rmsle: {:.4f}'.format(train_cost))
         print('Validation rmsle: {:.4f}'.format(validation_cost))
         print('Lowest rmse: {:.2f} at epoch {}'.format(best_iteration[0], best_iteration[1]))
 
         submission_name = build_submission_name(train_cost, validation_cost, layers_dims, num_epochs, lr_decay,
-                                                learning_rate, use_l2, l2_beta, keep_prob, minibatch_size, num_examples)
+                                                learning_rate, l2_beta, keep_prob, minibatch_size, num_examples)
 
         if plot_cost is True:
             plot_model_cost(train_costs, validation_costs, submission_name)

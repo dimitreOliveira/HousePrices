@@ -1,3 +1,4 @@
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 from model import model
@@ -38,8 +39,8 @@ train_pre = train_pre.drop(['HouseStyle', 'RoofMatl', 'Heating', 'Condition2'], 
 test_pre = test_pre.drop(['HouseStyle', 'RoofMatl', 'Heating', 'Condition2'], axis=1)
 
 # drop unwanted columns
-train_pre = train_pre.drop(['Id'], axis=1).as_matrix()
-test_pre = test_pre.drop(['Id'], axis=1).as_matrix()
+train_pre = train_pre.drop(['Id'], axis=1).as_matrix().astype(np.float)
+test_pre = test_pre.drop(['Id'], axis=1).as_matrix().astype(np.float)
 
 # scale values
 min_max_scaler = preprocessing.MinMaxScaler()
@@ -52,13 +53,13 @@ X_train, X_valid, Y_train, Y_valid = train_test_split(train_pre, train_raw_label
 # hyperparameters
 input_size = train_pre.shape[1]
 output_size = 1
-num_epochs = 5000
-learning_rate = 0.01
-layers_dims = [input_size, 100, output_size]
+num_epochs = 3000
+learning_rate = 0.001
+layers_dims = [input_size, 100, 100, output_size]
 
 trained_parameters, submission_name = model(X_train, Y_train, X_valid, Y_valid, layers_dims, num_epochs=num_epochs,
-                                            learning_rate=learning_rate, use_l2=False, print_cost=False, plot_cost=True,
-                                            l2_beta=0.01, keep_prob=0.9, return_max_acc=True)
+                                            learning_rate=learning_rate,print_cost=False, plot_cost=True, l2_beta=0,
+                                            keep_prob=0.9, minibatch_size=0, return_max_acc=True)
 print(submission_name)
 
 prediction = list(map(lambda val: float(val), predict(test_pre, trained_parameters)))
