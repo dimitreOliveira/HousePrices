@@ -1,0 +1,80 @@
+---
+title: "House Prices - Exploratory Data Analysis"
+output:
+  html_notebook: 
+    df_print: paged
+    theme: readable
+    toc: yes
+    toc_float: yes
+  editor_options:
+    chunk_output_type: inline
+---
+
+![](https://kaggle2.blob.core.windows.net/competitions/kaggle/5407/media/housesbanner.png)
+
+# Introduction
+
+## Deep Learning regression using Tensorflow for house prices prediction.
+
+### House Prices: Advanced Regression Techniques
+
+link for the kaggle competition: https://www.kaggle.com/c/house-prices-advanced-regression-techniques
+
+datasets: https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data
+
+### Overview
+Ask a home buyer to describe their dream house, and they probably won't begin with the height of the basement ceiling or the proximity to an east-west railroad. But this playground competition's dataset proves that much more influences price negotiations than the number of bedrooms or a white-picket fence.
+
+With 79 explanatory variables describing (almost) every aspect of residential homes in Ames, Iowa, this competition challenges you to predict the final price of each home.
+
+### Acknowledgments
+The Ames Housing dataset was compiled by Dean De Cock for use in data science education. It's an incredible alternative for data scientists looking for a modernized and expanded version of the often cited Boston Housing dataset. 
+
+# Exploratory Data Analysis
+
+```{r message=FALSE, include=FALSE}
+# set up
+library(dplyr)
+library(corrplot)
+```
+
+```{r include=FALSE}
+# Loading data
+train <- read.csv("C:/Users/dimit/Desktop/Projetos/House Prices/data/train.csv", encoding="UTF-8")
+test <- read.csv('C:/Users/dimit/Desktop/Projetos/House Prices/data/test.csv', encoding="UTF-8")
+sample_submission <- read.csv('C:/Users/dimit/Desktop/Projetos/House Prices/data/sample_submission.csv', encoding="UTF-8")
+```
+
+First let's take a look at how many null values we have on the train set.
+```{r echo=FALSE}
+sapply(train, function(x) sum(is.na(x)))
+```
+
+
+As we can see we have lots of null values among all columns, to make our work easier we'll take them out for now and latter decide how to deal with them.
+
+```{r echo=FALSE}
+train_non_null <- select(train, -LotFrontage, -Alley, -MasVnrType, -MasVnrArea, -FireplaceQu, -GarageType, -GarageYrBlt, -GarageFinish, -GarageQual, -GarageCond, -BsmtQual, -BsmtCond, -BsmtExposure, -BsmtFinType1, -PoolQC, -Fence, -MiscFeature, -BsmtFinType1, -BsmtFinType2, -Electrical, -BsmtFinSF2, -BsmtUnfSF, -TotalBsmtSF, -BsmtFullBath, -BsmtHalfBath, -GarageCars, -GarageArea, -MSZoning, -Utilities, -Exterior1st, -Exterior2nd,  -BsmtFinSF1, -KitchenQual, -Functional, -SaleType)
+```
+
+New train dataset
+```{r echo=FALSE}
+sapply(train_non_null, function(x) sum(is.na(x)))
+```
+
+Now we have our train set with no null values, so let's start taking a look at how the numeric features correlate with the target "SalePrice".
+
+```{r echo=FALSE}
+# Selecting only numeric features
+train_numeric <- select(train_non_null, -HouseStyle, -RoofMatl, -Heating, -Condition2, -RoofStyle, -ExterQual, -BldgType, -ExterCond, -Foundation, -HeatingQC, -CentralAir, -Condition1, -Neighborhood, -LandSlope, -LotConfig, -LandContour, -LotShape, -Street, -PavedDrive, -SaleCondition)
+```
+
+```{r}
+# Store the overall correlation in 'correlations'
+correlations <- cor(train_numeric[,1:27])
+
+# Plot the correlation plot with 'correlations'
+corrplot(correlations, method="square", type = "upper")
+```
+
+As we can see we have lots of features that have really low correlation with with "SalePrice", features like this can disturb the traing of our model, maybe latter we can feature engineer them to have more useful features, but for now we'll set them aside to have a simpler model.

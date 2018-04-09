@@ -1,7 +1,5 @@
 import math
 import csv
-import re
-import numpy as np
 import pandas as pd
 
 
@@ -22,19 +20,6 @@ def load_data(train_path, test_path):
     print("test shape: " + str(test_data.shape))
 
     return train_data, test_data
-
-
-def convert_to_one_hot(dataset_size, raw_labels, classes):
-    """
-    :param dataset_size: size of the data set
-    :param raw_labels: array with the labels set
-    :param classes: number of output classes
-    :return: one hot labels array
-    """
-    labels = np.zeros((dataset_size, classes))
-    labels[np.arange(dataset_size), raw_labels] = 1
-
-    return labels
 
 
 def output_submission(test_ids, predictions, id_column, predction_column, file_name):
@@ -80,30 +65,16 @@ def pre_process_data(df):
     :param df: pandas data frame
     :return: updated data frame
     """
-    # convert 'Sex' values
-    # df['gender'] = df['Sex'].map({'female': 0, 'male': 1}).astype(int)
-
-    # We see that 2 passengers embarked data is missing, we fill those in as the most common Embarked value
-    # replace_na_with_mode(df, 'Embarked')
-
-    # Replace missing age values with median ages by gender
-    # for gender in df['gender'].unique():
-    #     median_age = df[(df['gender'] == gender)].Age.median()
-    #     df.loc[(df['Age'].isnull()) & (df['gender'] == gender), 'Age'] = median_age
 
     # one-hot encode categorical values
-    # df = pd.get_dummies(df, columns=['HouseStyle'])
     df = pd.get_dummies(df, columns=['RoofStyle'])
-    # df = pd.get_dummies(df, columns=['RoofMatl'])
     df = pd.get_dummies(df, columns=['ExterQual'])
     df = pd.get_dummies(df, columns=['BldgType'])
     df = pd.get_dummies(df, columns=['ExterCond'])
     df = pd.get_dummies(df, columns=['Foundation'])
-    # df = pd.get_dummies(df, columns=['Heating'])
     df = pd.get_dummies(df, columns=['HeatingQC'])
     df = pd.get_dummies(df, columns=['CentralAir'])
     df = pd.get_dummies(df, columns=['Condition1'])
-    # df = pd.get_dummies(df, columns=['Condition2'])
     df = pd.get_dummies(df, columns=['Neighborhood'])
     df = pd.get_dummies(df, columns=['LandSlope'])
     df = pd.get_dummies(df, columns=['LotConfig'])
@@ -112,29 +83,6 @@ def pre_process_data(df):
     df = pd.get_dummies(df, columns=['Street'])
     df = pd.get_dummies(df, columns=['PavedDrive'])
     df = pd.get_dummies(df, columns=['SaleCondition'])
-
-    # bin Fare into five intervals with equal amount of values
-    # df['Fare-bin'] = pd.qcut(df['Fare'], 5, labels=[1, 2, 3, 4, 5]).astype(int)
-
-    # bin Age into seven intervals with equal amount of values
-    # ('baby','child','teenager','young','mid-age','over-50','senior')
-    # bins = [0, 4, 12, 18, 30, 50, 65, 100]
-    # age_index = (1, 2, 3, 4, 5, 6, 7)
-    # df['Age-bin'] = pd.cut(df['Age'], bins, labels=age_index).astype(int)
-
-    # create a new column 'family' as a sum of 'SibSp' and 'Parch'
-    # df['family'] = df['SibSp'] + df['Parch'] + 1
-    # df['family'] = df['family'].map(lambda x: 4 if x > 4 else x)
-
-    # create a new column 'FTicket' as the first character of the 'Ticket'
-    # df['FTicket'] = df['Ticket'].map(lambda x: x[0])
-    # combine smaller categories into one
-    # df['FTicket'] = df['FTicket'].replace(['W', 'F', 'L', '5', '6', '7', '8', '9'], '4')
-    # convert 'FTicket' values to new columns
-    # df = pd.get_dummies(df, columns=['FTicket'])
-
-    # get titles from the name
-    # df['title'] = df.apply(lambda row: re.split('[,.]+', row['Name'])[1], axis=1)
 
     return df
 
