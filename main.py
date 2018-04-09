@@ -53,14 +53,14 @@ X_train, X_valid, Y_train, Y_valid = train_test_split(train_pre, train_raw_label
 # hyperparameters
 input_size = train_pre.shape[1]
 output_size = 1
-num_epochs = 3000
-learning_rate = 0.001
+num_epochs = 10000
+learning_rate = 0.01
 layers_dims = [input_size, 100, 100, output_size]
 
 trained_parameters, submission_name = model(X_train, Y_train, X_valid, Y_valid, layers_dims, num_epochs=num_epochs,
-                                            learning_rate=learning_rate,print_cost=False, plot_cost=True, l2_beta=0,
+                                            learning_rate=learning_rate, print_cost=False, plot_cost=True, l2_beta=0,
                                             keep_prob=0.9, minibatch_size=0, return_max_acc=True)
 print(submission_name)
-
 prediction = list(map(lambda val: float(val), predict(test_pre, trained_parameters)))
 output_submission(test.Id.values, prediction, 'Id', 'SalePrice', submission_name)
+
