@@ -168,12 +168,12 @@ def l2_regularizer(cost, l2_beta, parameters, n_layers):
     return cost
 
 
-def build_submission_name(train_accuracy, validation_accuracy, layers_dims, num_epochs, lr_decay,
+def build_submission_name(train_cost, validation_cost, layers_dims, num_epochs, lr_decay,
                           learning_rate, l2_beta, keep_prob, minibatch_size, num_examples):
     """
     builds a string (submission file name), based on the model parameters
-    :param train_accuracy: model train accuracy
-    :param validation_accuracy: model validation accuracy
+    :param train_cost: model train cost
+    :param validation_cost: model validation cost
     :param layers_dims: model layers dimensions
     :param num_epochs: model number of epochs
     :param lr_decay: model learning rate decay
@@ -185,7 +185,7 @@ def build_submission_name(train_accuracy, validation_accuracy, layers_dims, num_
     :return: built string
     """
     submission_name = 'tr_cost-{:.2f}-vd_cost{:.2f}-ly{}-epoch{}.csv' \
-        .format(train_accuracy, validation_accuracy, layers_dims, num_epochs)
+        .format(train_cost, validation_cost, layers_dims, num_epochs)
 
     if lr_decay != 0:
         submission_name = 'lrdc{}-'.format(lr_decay) + submission_name
