@@ -36,6 +36,8 @@ The Ames Housing dataset was compiled by Dean De Cock for use in data science ed
 # set up
 library(dplyr)
 library(corrplot)
+library(ggplot2)
+options(scipen = 4)
 ```
 
 ```{r include=FALSE}
@@ -44,6 +46,8 @@ train <- read.csv("C:/Users/dimit/Desktop/Projetos/House Prices/data/train.csv",
 test <- read.csv('C:/Users/dimit/Desktop/Projetos/House Prices/data/test.csv', encoding="UTF-8")
 sample_submission <- read.csv('C:/Users/dimit/Desktop/Projetos/House Prices/data/sample_submission.csv', encoding="UTF-8")
 ```
+
+### Null occurrence
 
 First let's take a look at how many null values we have on the train set.
 ```{r echo=FALSE}
@@ -57,19 +61,35 @@ As we can see we have lots of null values among all columns, to make our work ea
 train_non_null <- select(train, -LotFrontage, -Alley, -MasVnrType, -MasVnrArea, -FireplaceQu, -GarageType, -GarageYrBlt, -GarageFinish, -GarageQual, -GarageCond, -BsmtQual, -BsmtCond, -BsmtExposure, -BsmtFinType1, -PoolQC, -Fence, -MiscFeature, -BsmtFinType1, -BsmtFinType2, -Electrical, -BsmtFinSF2, -BsmtUnfSF, -TotalBsmtSF, -BsmtFullBath, -BsmtHalfBath, -GarageCars, -GarageArea, -MSZoning, -Utilities, -Exterior1st, -Exterior2nd,  -BsmtFinSF1, -KitchenQual, -Functional, -SaleType)
 ```
 
-New train dataset
+New train dataset null count:
 ```{r echo=FALSE}
 sapply(train_non_null, function(x) sum(is.na(x)))
 ```
 
-Now we have our train set with no null values, so let's start taking a look at how the numeric features correlate with the target "SalePrice".
+### Label analysis
+
+Now we have our train set with no null values, so first let's take a look at how is our label feature ("SalePrice") distribution with a histogram and see the feature summary.
+```{r echo=FALSE}
+ggplot(data=train_non_null, aes(train_non_null$SalePrice)) + 
+  geom_histogram(col="red", aes(fill=..count..)) +
+  scale_fill_gradient("Count", low="white", high="red") + 
+  labs(title = "Sale price histogram", x = "Sale price", y = "Count")
+
+summary(train_non_null$SalePrice)
+```
+
+We can see some interesting properties, our label has a peak around 160000, then it starts to decline and forms a long tail ending at 75500, as our summary shows.
+
+### Numerical features correlation
+
+After this let's start taking a look at how the remaining 27 numeric features correlate with the target "SalePrice" with a correlation matrix.
 
 ```{r echo=FALSE}
 # Selecting only numeric features
 train_numeric <- select(train_non_null, -HouseStyle, -RoofMatl, -Heating, -Condition2, -RoofStyle, -ExterQual, -BldgType, -ExterCond, -Foundation, -HeatingQC, -CentralAir, -Condition1, -Neighborhood, -LandSlope, -LotConfig, -LandContour, -LotShape, -Street, -PavedDrive, -SaleCondition)
 ```
 
-```{r}
+```{r echo=FALSE}
 # Store the overall correlation in 'correlations'
 correlations <- cor(train_numeric[,1:27])
 
@@ -77,4 +97,36 @@ correlations <- cor(train_numeric[,1:27])
 corrplot(correlations, method="square", type = "upper")
 ```
 
-As we can see we have lots of features that have really low correlation with with "SalePrice", features like this can disturb the traing of our model, maybe latter we can feature engineer them to have more useful features, but for now we'll set them aside to have a simpler model.
+### Categorical features correlation
+
+```{r echo=FALSE}
+# Selecting only categorical features and the label
+train_categoric <- select(train_non_null, HouseStyle, RoofMatl, Heating, Condition2, RoofStyle, ExterQual, BldgType,  ExterCond, Foundation, HeatingQC, CentralAir, Condition1, Neighborhood, LandSlope, LotConfig, LandContour, LotShape, Street, PavedDrive, SaleCondition, SalePrice)
+```
+And to our remaining 21 categorical features lets take a look at some scatter plot matrices, to feel how our data relates with other features and specially with "SalePrice".
+
+```{r echo=FALSE}
+pairs(~ HouseStyle + RoofMatl + Heating + Condition2 + SalePrice, data = train_categoric)
+```
+```{r echo=FALSE}
+pairs(~ RoofStyle + ExterQual + BldgType +  ExterCond + SalePrice, data = train_categoric)
+```
+```{r echo=FALSE}
+pairs(~ Foundation + HeatingQC + CentralAir + Condition1 + SalePrice, data = train_categoric)
+```
+```{r echo=FALSE}
+pairs(~ Neighborhood + LandSlope + LotConfig + LandContour + SalePrice, data = train_categoric)
+```
+```{r echo=FALSE}
+pairs(~ LotShape + Street + PavedDrive + SaleCondition + SalePrice, data = train_categoric)
+```
+
+As we can see we have lots of features that have really low correlation with with "SalePrice", features like this can disturb the training of our model, maybe latter we can feature engineer them to have more useful features, but for now we'll set them aside to have a simpler model.
+
+# Data pre-processing
+
+Now that we have more information about the features of our dataset, we can filter out all the unwanted features and work with a cleaner dataset.
+
+```{r echo=FALSE}
+train_clean <- select(train_non_null, -Id, -MSSubClass, -LowQualFinSF, -X3SsnPorch, -ScreenPorch, -PoolArea, -MiscVal, -MoSold, -YrSold)
+```
