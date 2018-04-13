@@ -243,10 +243,13 @@ Now that we have more information about the features of our dataset, we can filt
 
 ```{r echo=FALSE}
 # removin low correlation numerical
-train_clean <- select(train_non_null, -Id, -MSSubClass, -LowQualFinSF, -X3SsnPorch, -ScreenPorch, -PoolArea, -MiscVal, -MoSold, -YrSold)
+train_clean <- select(train_non_null, -MSSubClass, -LowQualFinSF, -X3SsnPorch, -ScreenPorch, -PoolArea, -MiscVal, -MoSold, -YrSold)
 # removin low variance categorical
 train_clean <- select(train_clean, -RoofStyle, -BldgType, -LandSlope, -LotConfig, -LandContour, -LotShape)
 ```
+
+### Features behavior
+
 After filtering out the unwanted features let's take a look how our remaining features behaves with the target features and others with some scatter plot matrices.
 ```{r echo=FALSE}
 pairs(~ LotArea + Street + Neighborhood + Condition1 + Condition2 + SalePrice, data = train_clean)
@@ -256,6 +259,8 @@ pairs(~ HeatingQC + CentralAir + X1stFlrSF + X2ndFlrSF + GrLivArea + SalePrice, 
 pairs(~ FullBath + HalfBath + BedroomAbvGr + KitchenAbvGr + TotRmsAbvGrd + SalePrice, data = train_clean)
 pairs(~ Fireplaces + PavedDrive + WoodDeckSF + OpenPorchSF + EnclosedPorch + SaleCondition + SalePrice, data = train_clean)
 ```
+
+### Data inference
 
 Now we can go back to our features with null values, the ones with high amount of missing data (more than 15%) we will drop, as the effort of inferring values would probably be too much and would still have chances of adding bias to the training, but the remaining we will try to infer the missing values.
 
@@ -287,7 +292,7 @@ Then we will do the same to our test set.
 ```{r include=FALSE}
 test_non_null <- select(test, -LotFrontage, -Alley, -MasVnrType, -MasVnrArea, -FireplaceQu, -GarageType, -GarageYrBlt, -GarageFinish, -GarageQual, -GarageCond, -BsmtQual, -BsmtCond, -BsmtExposure, -BsmtFinType1, -PoolQC, -Fence, -MiscFeature, -BsmtFinType1, -BsmtFinType2, -Electrical, -BsmtFinSF2, -BsmtUnfSF, -TotalBsmtSF, -BsmtFullBath, -BsmtHalfBath, -GarageCars, -GarageArea, -MSZoning, -Utilities, -Exterior1st, -Exterior2nd,  -BsmtFinSF1, -KitchenQual, -Functional, -SaleType)
 
-test_clean <- select(test_non_null, -Id, -MSSubClass, -LowQualFinSF, -X3SsnPorch, -ScreenPorch, -PoolArea, -MiscVal, -MoSold, -YrSold)
+test_clean <- select(test_non_null, -MSSubClass, -LowQualFinSF, -X3SsnPorch, -ScreenPorch, -PoolArea, -MiscVal, -MoSold, -YrSold)
 test_clean <- select(test_clean, -RoofStyle, -BldgType, -LandSlope, -LotConfig, -LandContour, -LotShape)
 
 test_to_process <- select(test, MasVnrType, MasVnrArea, GarageType, GarageYrBlt, GarageFinish, GarageQual, GarageCond, BsmtQual, BsmtCond, BsmtExposure, BsmtFinType1, BsmtFinType1, BsmtFinType2, Electrical, BsmtFinSF2, BsmtUnfSF, TotalBsmtSF, BsmtFullBath, BsmtHalfBath, GarageCars, GarageArea, MSZoning, Utilities, Exterior1st, Exterior2nd,  BsmtFinSF1, KitchenQual, Functional, SaleType)
@@ -302,6 +307,8 @@ for(i in 1:ncol(test_to_process)){
 
 test_final <- cbind(test_to_process, test_clean)
 ```
+
+### Export the data
 
 After all the data cleaning and processing we can write the resulting data frame into a csv file and use it on our model.
 

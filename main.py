@@ -6,8 +6,49 @@ from methods import predict
 from dataset import load_data, pre_process_data, output_submission
 
 
-TRAIN_PATH = 'data/train.csv'
-TEST_PATH = 'data/test.csv'
+# TRAIN_PATH = 'data/train.csv'
+# TEST_PATH = 'data/test.csv'
+#
+# train, test = load_data(TRAIN_PATH, TEST_PATH)
+#
+# # get the labels values
+# train_raw_labels = train['SalePrice'].to_frame().as_matrix()
+#
+# # drop label
+# train_pre = train.drop(['SalePrice'], axis=1)
+#
+# train_pre = pre_process_data(train_pre)
+# test_pre = pre_process_data(test)
+#
+# # drop columns with null values
+# train_pre = train_pre.drop(['LotFrontage', 'Alley', 'MasVnrType', 'MasVnrArea', 'FireplaceQu', 'GarageType',
+#                             'GarageYrBlt', 'GarageFinish', 'GarageQual', 'GarageCond', 'BsmtQual', 'BsmtCond',
+#                             'BsmtExposure', 'BsmtFinType1', 'PoolQC', 'Fence', 'MiscFeature', 'BsmtFinType1',
+#                             'BsmtFinType2', 'Electrical', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath',
+#                             'BsmtHalfBath', 'GarageCars', 'GarageArea', 'MSZoning', 'Utilities', 'Exterior1st',
+#                             'Exterior2nd',  'BsmtFinSF1', 'KitchenQual', 'Functional', 'SaleType'], axis=1)
+# test_pre = test_pre.drop(['LotFrontage', 'Alley', 'MasVnrType', 'MasVnrArea', 'FireplaceQu', 'GarageType', 'GarageYrBlt',
+#                       'GarageFinish', 'GarageQual', 'GarageCond', 'BsmtQual', 'BsmtCond', 'BsmtExposure',
+#                       'BsmtFinType1', 'PoolQC', 'Fence', 'MiscFeature', 'BsmtFinType1', 'BsmtFinType2', 'Electrical',
+#                       'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath', 'GarageCars',
+#                       'GarageArea', 'MSZoning', 'Utilities', 'Exterior1st', 'Exterior2nd', 'BsmtFinSF1', 'KitchenQual',
+#                       'Functional', 'SaleType'], axis=1)
+#
+# # drop columns with categorical values
+# train_pre = train_pre.drop(['HouseStyle', 'RoofMatl', 'Heating', 'Condition2'], axis=1)
+# test_pre = test_pre.drop(['HouseStyle', 'RoofMatl', 'Heating', 'Condition2'], axis=1)
+#
+# # drop unwanted columns
+# train_pre = train_pre.drop(['Id'], axis=1).as_matrix().astype(np.float)
+# test_pre = test_pre.drop(['Id'], axis=1).as_matrix().astype(np.float)
+
+
+
+
+
+
+TRAIN_PATH = 'data/train_cleaned.csv'
+TEST_PATH = 'data/test_cleaned.csv'
 
 train, test = load_data(TRAIN_PATH, TEST_PATH)
 
@@ -17,30 +58,38 @@ train_raw_labels = train['SalePrice'].to_frame().as_matrix()
 # drop label
 train_pre = train.drop(['SalePrice'], axis=1)
 
+
+
+
+train_pre = train_pre.drop(['GarageQual'], axis=1)
+train_pre = train_pre.drop(['Electrical'], axis=1)
+train_pre = train_pre.drop(['Utilities'], axis=1)
+train_pre = train_pre.drop(['Exterior1st'], axis=1)
+train_pre = train_pre.drop(['Exterior2nd'], axis=1)
+train_pre = train_pre.drop(['Condition2'], axis=1)
+train_pre = train_pre.drop(['HouseStyle'], axis=1)
+train_pre = train_pre.drop(['RoofMatl'], axis=1)
+train_pre = train_pre.drop(['Heating'], axis=1)
+
+test_pre = test.drop(['GarageQual'], axis=1)
+test_pre = test_pre.drop(['Electrical'], axis=1)
+test_pre = test_pre.drop(['Utilities'], axis=1)
+test_pre = test_pre.drop(['Exterior1st'], axis=1)
+test_pre = test_pre.drop(['Exterior2nd'], axis=1)
+test_pre = test_pre.drop(['Condition2'], axis=1)
+test_pre = test_pre.drop(['HouseStyle'], axis=1)
+test_pre = test_pre.drop(['RoofMatl'], axis=1)
+test_pre = test_pre.drop(['Heating'], axis=1)
+
+
 train_pre = pre_process_data(train_pre)
-test_pre = pre_process_data(test)
-
-# drop columns with null values
-train_pre = train_pre.drop(['LotFrontage', 'Alley', 'MasVnrType', 'MasVnrArea', 'FireplaceQu', 'GarageType',
-                            'GarageYrBlt', 'GarageFinish', 'GarageQual', 'GarageCond', 'BsmtQual', 'BsmtCond',
-                            'BsmtExposure', 'BsmtFinType1', 'PoolQC', 'Fence', 'MiscFeature', 'BsmtFinType1',
-                            'BsmtFinType2', 'Electrical', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath',
-                            'BsmtHalfBath', 'GarageCars', 'GarageArea', 'MSZoning', 'Utilities', 'Exterior1st',
-                            'Exterior2nd',  'BsmtFinSF1', 'KitchenQual', 'Functional', 'SaleType'], axis=1)
-test_pre = test_pre.drop(['LotFrontage', 'Alley', 'MasVnrType', 'MasVnrArea', 'FireplaceQu', 'GarageType', 'GarageYrBlt',
-                      'GarageFinish', 'GarageQual', 'GarageCond', 'BsmtQual', 'BsmtCond', 'BsmtExposure',
-                      'BsmtFinType1', 'PoolQC', 'Fence', 'MiscFeature', 'BsmtFinType1', 'BsmtFinType2', 'Electrical',
-                      'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath', 'GarageCars',
-                      'GarageArea', 'MSZoning', 'Utilities', 'Exterior1st', 'Exterior2nd', 'BsmtFinSF1', 'KitchenQual',
-                      'Functional', 'SaleType'], axis=1)
-
-# drop columns with categorical values
-train_pre = train_pre.drop(['HouseStyle', 'RoofMatl', 'Heating', 'Condition2'], axis=1)
-test_pre = test_pre.drop(['HouseStyle', 'RoofMatl', 'Heating', 'Condition2'], axis=1)
+test_pre = pre_process_data(test_pre)
 
 # drop unwanted columns
 train_pre = train_pre.drop(['Id'], axis=1).as_matrix().astype(np.float)
 test_pre = test_pre.drop(['Id'], axis=1).as_matrix().astype(np.float)
+
+
 
 # scale values
 min_max_scaler = preprocessing.MinMaxScaler()
