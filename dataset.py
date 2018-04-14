@@ -1,4 +1,3 @@
-import math
 import csv
 import pandas as pd
 
@@ -63,7 +62,7 @@ def pre_process_data(df):
     """
     Perform a number of pre process functions on the data set
     :param df: pandas data frame
-    :return: updated data frame
+    :return: processed data frame
     """
 
     # one-hot encode categorical values
@@ -77,33 +76,25 @@ def pre_process_data(df):
     df = pd.get_dummies(df, columns=['Street'])
     df = pd.get_dummies(df, columns=['PavedDrive'])
     df = pd.get_dummies(df, columns=['SaleCondition'])
-    # df = pd.get_dummies(df, columns=['RoofStyle'])
-    # df = pd.get_dummies(df, columns=['BldgType'])
-    # df = pd.get_dummies(df, columns=['LandSlope'])
-    # df = pd.get_dummies(df, columns=['LotConfig'])
-    # df = pd.get_dummies(df, columns=['LandContour'])
-    # df = pd.get_dummies(df, columns=['LotShape'])
-
-    # df = pd.get_dummies(df, columns=['HouseStyle'])
-    # df = pd.get_dummies(df, columns=['RoofMatl'])
-    # df = pd.get_dummies(df, columns=['Heating'])
-    # df = pd.get_dummies(df, columns=['Condition2'])
-
+    df = pd.get_dummies(df, columns=['HouseStyle'])
+    df = pd.get_dummies(df, columns=['RoofMatl'])
+    df = pd.get_dummies(df, columns=['Heating'])
+    df = pd.get_dummies(df, columns=['Condition2'])
+    df = pd.get_dummies(df, columns=['GarageQual'])
+    df = pd.get_dummies(df, columns=['Electrical'])
+    df = pd.get_dummies(df, columns=['Utilities'])
+    df = pd.get_dummies(df, columns=['Exterior1st'])
+    df = pd.get_dummies(df, columns=['Exterior2nd'])
     df = pd.get_dummies(df, columns=['MasVnrType'])
     df = pd.get_dummies(df, columns=['GarageType'])
     df = pd.get_dummies(df, columns=['GarageFinish'])
-    # df = pd.get_dummies(df, columns=['GarageQual'])
     df = pd.get_dummies(df, columns=['GarageCond'])
     df = pd.get_dummies(df, columns=['BsmtQual'])
     df = pd.get_dummies(df, columns=['BsmtCond'])
     df = pd.get_dummies(df, columns=['BsmtExposure'])
     df = pd.get_dummies(df, columns=['BsmtFinType1'])
     df = pd.get_dummies(df, columns=['BsmtFinType2'])
-    # df = pd.get_dummies(df, columns=['Electrical'])
     df = pd.get_dummies(df, columns=['MSZoning'])
-    # df = pd.get_dummies(df, columns=['Utilities'])
-    # df = pd.get_dummies(df, columns=['Exterior1st'])
-    # df = pd.get_dummies(df, columns=['Exterior2nd'])
     df = pd.get_dummies(df, columns=['KitchenQual'])
     df = pd.get_dummies(df, columns=['Functional'])
     df = pd.get_dummies(df, columns=['SaleType'])
@@ -121,7 +112,7 @@ def mini_batches(train_set, train_labels, mini_batch_size):
     """
     set_size = train_set.shape[0]
     batches = []
-    num_complete_minibatches = math.floor(set_size / mini_batch_size)
+    num_complete_minibatches = set_size // mini_batch_size
 
     for k in range(0, num_complete_minibatches):
         mini_batch_x = train_set[k * mini_batch_size: (k + 1) * mini_batch_size]

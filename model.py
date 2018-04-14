@@ -116,7 +116,8 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
         print('Validation rmse: {:.4f}'.format(validation_rmse))
         print('Train rmsle: {:.4f}'.format(train_rmsle))
         print('Validation rmsle: {:.4f}'.format(validation_rmsle))
-        print('Lowest rmse: {:.2f} at epoch {}'.format(best_iteration[0], best_iteration[1]))
+        if return_best is True:
+            print('Lowest rmse: {:.2f} at epoch {}'.format(best_iteration[0], best_iteration[1]))
 
         submission_name = build_submission_name(train_rmse, validation_rmse, layers_dims, num_epochs, lr_decay,
                                                 learning_rate, l2_beta, keep_prob, minibatch_size, num_examples)

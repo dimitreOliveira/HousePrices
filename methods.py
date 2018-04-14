@@ -95,8 +95,6 @@ def compute_cost(z3, y):
     :return: Tensor of the cost function (RMSE as it is a regression)
     """
 
-    # cost = tf.sqrt(tf.reduce_mean(tf.square(tf.log(tf.cast(z3, tf.float32) + 1) - tf.log(tf.cast(y, tf.float32) + 1))))
-    # cost = tf.sqrt(tf.reduce_mean(tf.square(tf.log((tf.cast(z3, tf.float32) + 1) / (tf.cast(y, tf.float32) + 1)))))
     cost = tf.sqrt(tf.reduce_mean(tf.square(y - z3)))
 
     return cost
