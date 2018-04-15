@@ -5,9 +5,9 @@ from methods import compute_cost, create_placeholders, forward_propagation, init
 from dataset import mini_batches
 
 
-def model(train_set, train_labels, validation_set, validation_labels, layers_dims, learning_rate=0.01, num_epochs=15001,
+def model(train_set, train_labels, validation_set, validation_labels, layers_dims, learning_rate=0.01, num_epochs=1001,
           print_cost=True, plot_cost=True, l2_beta=0., keep_prob=1.0, hidden_activation='relu', return_best=False,
-          minibatch_size=0, lr_decay=0):
+          minibatch_size=0, lr_decay=0, tensorboard=True):
     """
     Implements a n-layer tensorflow neural network: LINEAR->RELU*(n times)->LINEAR->SOFTMAX.
     :param train_set: training set
@@ -25,6 +25,7 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
     :param return_best: True to return the highest params from all epochs
     :param minibatch_size: size of th mini batch
     :param lr_decay: if != 0, sets de learning rate decay on each epoch
+    :param tensorboard: export log to tensorboard
     :return parameters: parameters learnt by the model. They can then be used to predict.
     :return submission_name: name for the trained model
     """
@@ -35,14 +36,17 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
     output_size = layers_dims[-1]
     num_examples = train_set.shape[0]
     n_layers = len(layers_dims)
-
     train_costs = []
     validation_costs = []
     best_iteration = [float('inf'), 0]
     best_params = None
+
     if minibatch_size == 0:
         minibatch_size = num_examples
+
     num_minibatches = int(num_examples / minibatch_size)
+    submission_name = build_submission_name(layers_dims, num_epochs, lr_decay, learning_rate, l2_beta, keep_prob,
+                                            minibatch_size, num_examples)
 
     x, y = create_placeholders(input_size, output_size)
     tf_valid_dataset = tf.cast(tf.constant(validation_set), tf.float32)
@@ -66,9 +70,12 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
     else:
         optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost)
 
+    tf.summary.scalar('train cost', train_cost)
+    tf.summary.scalar('validation cost', validation_cost)
     init = tf.global_variables_initializer()
 
     with tf.Session() as sess:
+        writer = tf.summary.FileWriter('logs/'+submission_name, sess.graph)
         sess.run(init)
 
         for epoch in range(num_epochs):
@@ -78,19 +85,15 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
             minibatches = mini_batches(train_set, train_labels, minibatch_size)
 
             for minibatch in minibatches:
+                merge = tf.summary.merge_all()
                 (minibatch_X, minibatch_Y) = minibatch
                 feed_dict = {x: minibatch_X, y: minibatch_Y}
 
-                _, minibatch_train_cost, minibatch_validation_cost = sess.run(
-                    [optimizer, train_cost, validation_cost], feed_dict=feed_dict)
+                _, summary, minibatch_train_cost, minibatch_validation_cost = sess.run(
+                    [optimizer, merge, train_cost, validation_cost], feed_dict=feed_dict)
 
                 train_epoch_cost += minibatch_train_cost / num_minibatches
                 validation_epoch_cost += minibatch_validation_cost / num_minibatches
-
-            if return_best is True and validation_epoch_cost < best_iteration[0]:
-                best_iteration[0] = validation_epoch_cost
-                best_iteration[1] = epoch
-                best_params = sess.run(parameters)
 
             if print_cost is True and epoch % 500 == 0:
                 print("Train cost after epoch %i: %f" % (epoch, train_epoch_cost))
@@ -99,6 +102,14 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
             if plot_cost is True and epoch % 10 == 0:
                 train_costs.append(train_epoch_cost)
                 validation_costs.append(validation_epoch_cost)
+
+            if tensorboard is True and epoch % 10 == 0:
+                writer.add_summary(summary, epoch)
+
+            if return_best is True and validation_epoch_cost < best_iteration[0]:
+                best_iteration[0] = validation_epoch_cost
+                best_iteration[1] = epoch
+                best_params = sess.run(parameters)
 
         if return_best is True:
             parameters = best_params
@@ -116,11 +127,11 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
         print('Validation rmse: {:.4f}'.format(validation_rmse))
         print('Train rmsle: {:.4f}'.format(train_rmsle))
         print('Validation rmsle: {:.4f}'.format(validation_rmsle))
+
+        submission_name = 'tr_cost-{:.2f}-vd_cost{:.2f}-'.format(train_rmse, validation_rmse) + submission_name
+
         if return_best is True:
             print('Lowest rmse: {:.2f} at epoch {}'.format(best_iteration[0], best_iteration[1]))
-
-        submission_name = build_submission_name(train_rmse, validation_rmse, layers_dims, num_epochs, lr_decay,
-                                                learning_rate, l2_beta, keep_prob, minibatch_size, num_examples)
 
         if plot_cost is True:
             plot_model_cost(train_costs, validation_costs, submission_name)
