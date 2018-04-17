@@ -70,11 +70,8 @@ def pre_process_data(df):
     df = pd.get_dummies(df, columns=['ExterCond'])
     df = pd.get_dummies(df, columns=['Foundation'])
     df = pd.get_dummies(df, columns=['HeatingQC'])
-    df = pd.get_dummies(df, columns=['CentralAir'])
     df = pd.get_dummies(df, columns=['Condition1'])
     df = pd.get_dummies(df, columns=['Neighborhood'])
-    df = pd.get_dummies(df, columns=['Street'])
-    df = pd.get_dummies(df, columns=['PavedDrive'])
     df = pd.get_dummies(df, columns=['SaleCondition'])
     df = pd.get_dummies(df, columns=['HouseStyle'])
     df = pd.get_dummies(df, columns=['RoofMatl'])
@@ -98,6 +95,10 @@ def pre_process_data(df):
     df = pd.get_dummies(df, columns=['KitchenQual'])
     df = pd.get_dummies(df, columns=['Functional'])
     df = pd.get_dummies(df, columns=['SaleType'])
+
+    df['CentralAir'] = df['CentralAir'].map({'N': 0, 'Y': 1}).astype(int)
+    df['Street'] = df['Street'].map({'Grvl': 0, 'Pave': 1}).astype(int)
+    df['PavedDrive'] = df['PavedDrive'].map({'N': 0, 'P': 1, 'Y': 2}).astype(int)
 
     return df
 

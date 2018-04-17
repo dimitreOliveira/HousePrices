@@ -1,4 +1,5 @@
 import tensorflow as tf
+import math
 from tensorflow.python.framework import ops
 from methods import compute_cost, create_placeholders, forward_propagation, initialize_parameters, rmse, rmsle, \
     l2_regularizer, build_submission_name, plot_model_cost, predict
@@ -41,10 +42,14 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
     best_iteration = [float('inf'), 0]
     best_params = None
 
-    if minibatch_size == 0:
+    if minibatch_size == 0 or minibatch_size > num_examples:
         minibatch_size = num_examples
 
-    num_minibatches = int(num_examples / minibatch_size)
+    num_minibatches = num_examples // minibatch_size
+
+    if num_minibatches == 0:
+        num_minibatches = 1
+
     submission_name = build_submission_name(layers_dims, num_epochs, lr_decay, learning_rate, l2_beta, keep_prob,
                                             minibatch_size, num_examples)
 
