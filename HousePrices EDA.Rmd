@@ -245,19 +245,18 @@ Now that we have more information about the features of our dataset, we can filt
 # removin low correlation numerical
 train_clean <- select(train_non_null, -MSSubClass, -OverallCond, -LowQualFinSF, -BedroomAbvGr, -KitchenAbvGr, -EnclosedPorch, -X3SsnPorch, -ScreenPorch, -PoolArea, -MiscVal, -MoSold, -YrSold)
 # removin low variance categorical
-train_clean <- select(train_clean, -RoofStyle, -BldgType, -LandSlope, -LotConfig, -LandContour, -LotShape)
+train_clean <- select(train_clean, -RoofStyle, -BldgType, -LandSlope, -LotConfig, -LandContour, -LotShape, -CentralAir, -Heating, -ExterCond, -RoofMatl, -HouseStyle, -Condition1, -Condition2, -Street)
 ```
 
 ### Features behavior
 
 After filtering out the unwanted features let's take a look how our remaining features behaves with the target features and others with some scatter plot matrices.
 ```{r echo=FALSE}
-pairs(~ LotArea + Street + Neighborhood + Condition1 + Condition2 + SalePrice, data = train_clean)
-pairs(~ HouseStyle + OverallQual + OpenPorchSF + YearBuilt + YearRemodAdd + SalePrice, data = train_clean)
-pairs(~ RoofMatl + ExterQual + ExterCond + Foundation + Heating + SalePrice, data = train_clean)
-pairs(~ HeatingQC + CentralAir + X1stFlrSF + X2ndFlrSF + SalePrice, data = train_clean)
-pairs(~ FullBath + HalfBath + WoodDeckSF + PavedDrive + SalePrice, data = train_clean)
-pairs(~ Fireplaces + TotRmsAbvGrd + GrLivArea+  SaleCondition + SalePrice, data = train_clean)
+pairs(~ LotArea + Neighborhood + OverallQual + OpenPorchSF + SalePrice, data = train_clean)
+pairs(~ YearBuilt + YearRemodAdd + ExterQual + Foundation + SalePrice, data = train_clean)
+pairs(~ HeatingQC + X1stFlrSF + X2ndFlrSF + FullBath + SalePrice, data = train_clean)
+pairs(~ HalfBath + WoodDeckSF + PavedDrive + Fireplaces + SalePrice, data = train_clean)
+pairs(~ TotRmsAbvGrd + GrLivArea + SaleCondition + SalePrice, data = train_clean)
 ```
 
 ### Data inference
@@ -434,15 +433,15 @@ As you can see we still have a number of irrelevant features, so we will also re
 ```{r include=FALSE}
 train_to_process <- cbind(select(train_to_process_categorical, -SalePrice), train_to_process_numerical)
 
-train_final <- cbind(select(train_to_process, -Utilities, -Functional, -BsmtFinType2, -BsmtFinSF2, -BsmtHalfBath, -SalePrice), train_clean)
+train_final <- cbind(select(train_to_process, -Utilities, -Functional, -BsmtFinType2, -BsmtFinSF2, -BsmtHalfBath, -GarageCond, -GarageQual, -BsmtCond, -Electrical,  -MSZoning, -SalePrice), train_clean)
 ```
 
 Then we will do the same process to our test set.
 ```{r include=FALSE}
 test_non_null <- select(test, -LotFrontage, -Alley, -MasVnrType, -MasVnrArea, -FireplaceQu, -GarageType, -GarageYrBlt, -GarageFinish, -GarageQual, -GarageCond, -BsmtQual, -BsmtCond, -BsmtExposure, -BsmtFinType1, -PoolQC, -Fence, -MiscFeature, -BsmtFinType1, -BsmtFinType2, -Electrical, -BsmtFinSF2, -BsmtUnfSF, -TotalBsmtSF, -BsmtFullBath, -BsmtHalfBath, -GarageCars, -GarageArea, -MSZoning, -Utilities, -Exterior1st, -Exterior2nd,  -BsmtFinSF1, -KitchenQual, -Functional, -SaleType)
 
-test_clean <- select(test_non_null, -MSSubClass, -LowQualFinSF, -X3SsnPorch, -ScreenPorch, -PoolArea, -MiscVal, -MoSold, -YrSold)
-test_clean <- select(test_clean, -RoofStyle, -BldgType, -LandSlope, -LotConfig, -LandContour, -LotShape)
+test_clean <- select(test_non_null, -MSSubClass, -OverallCond, -LowQualFinSF, -BedroomAbvGr, -KitchenAbvGr, -EnclosedPorch, -X3SsnPorch, -ScreenPorch, -PoolArea, -MiscVal, -MoSold, -YrSold)
+test_clean <- select(test_clean, -RoofStyle, -BldgType, -LandSlope, -LotConfig, -LandContour, -LotShape, -CentralAir, -Heating, -ExterCond, -RoofMatl, -HouseStyle, -Condition1, -Condition2, -Street)
 
 test_to_process_numerical <- select(test, BsmtFinSF2, BsmtUnfSF, TotalBsmtSF, BsmtFullBath, BsmtHalfBath, GarageCars, GarageArea, BsmtFinSF1)
 
@@ -459,7 +458,7 @@ for(i in 1:ncol(test_to_process_categorical)){
 
 test_to_process <- cbind(test_to_process_categorical, test_to_process_numerical)
 
-test_final <- cbind(select(test_to_process, -Utilities, -Functional, -BsmtFinType2, -BsmtFinSF2, -BsmtHalfBath), test_clean)
+test_final <- cbind(select(test_to_process, -Utilities, -Functional, -BsmtFinType2, -BsmtFinSF2, -BsmtHalfBath, -GarageCond, -GarageQual, -BsmtCond, -Electrical,  -MSZoning), test_clean)
 ```
 
 ### Export the data

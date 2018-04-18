@@ -6,6 +6,9 @@ from methods import predict
 from dataset import load_data, pre_process_data, output_submission
 
 
+import time
+
+
 TRAIN_PATH = 'data/train_cleaned.csv'
 TEST_PATH = 'data/test_cleaned.csv'
 
@@ -27,8 +30,8 @@ test_pre = test_pre.drop(['Id'], axis=1)
 train_pre, test_pre = train_pre.align(test_pre, join='outer', axis=1)
 
 # replace the nan values added by align for 0
-train_pre.replace(to_replace=np.nan, value=0, inplace=True, axis=1)
-test_pre.replace(to_replace=np.nan, value=0, inplace=True, axis=1)
+train_pre.replace(to_replace=np.nan, value=0, inplace=True)
+test_pre.replace(to_replace=np.nan, value=0, inplace=True)
 
 train_pre = train_pre.as_matrix().astype(np.float)
 test_pre = test_pre.as_matrix().astype(np.float)
@@ -43,13 +46,13 @@ X_train, X_valid, Y_train, Y_valid = train_test_split(train_pre, train_raw_label
 # hyperparameters
 input_size = train_pre.shape[1]
 output_size = 1
-num_epochs = 500
+num_epochs = 4000
 learning_rate = 0.01
-layers_dims = [input_size, 300, 300, output_size]
+layers_dims = [input_size, 500, 500, output_size]
 
 parameters, submission_name = model(X_train, Y_train, X_valid, Y_valid, layers_dims, num_epochs=num_epochs,
-                                    learning_rate=learning_rate, print_cost=False, plot_cost=False, l2_beta=1,
-                                    keep_prob=0.7, minibatch_size=256, return_best=True, tensorboard=True)
+                                    learning_rate=learning_rate, print_cost=False, plot_cost=False, l2_beta=10,
+                                    keep_prob=0.5, minibatch_size=0, return_best=True)
 print(submission_name)
 
 prediction = list(map(lambda val: float(val), predict(test_pre, parameters)))

@@ -65,40 +65,10 @@ def pre_process_data(df):
     :return: processed data frame
     """
 
-    # one-hot encode categorical values
-    df = pd.get_dummies(df, columns=['ExterQual'])
-    df = pd.get_dummies(df, columns=['ExterCond'])
-    df = pd.get_dummies(df, columns=['Foundation'])
-    df = pd.get_dummies(df, columns=['HeatingQC'])
-    df = pd.get_dummies(df, columns=['Condition1'])
-    df = pd.get_dummies(df, columns=['Neighborhood'])
-    df = pd.get_dummies(df, columns=['SaleCondition'])
-    df = pd.get_dummies(df, columns=['HouseStyle'])
-    df = pd.get_dummies(df, columns=['RoofMatl'])
-    df = pd.get_dummies(df, columns=['Heating'])
-    df = pd.get_dummies(df, columns=['Condition2'])
-    df = pd.get_dummies(df, columns=['GarageQual'])
-    df = pd.get_dummies(df, columns=['Electrical'])
-    df = pd.get_dummies(df, columns=['Utilities'])
-    df = pd.get_dummies(df, columns=['Exterior1st'])
-    df = pd.get_dummies(df, columns=['Exterior2nd'])
-    df = pd.get_dummies(df, columns=['MasVnrType'])
-    df = pd.get_dummies(df, columns=['GarageType'])
-    df = pd.get_dummies(df, columns=['GarageFinish'])
-    df = pd.get_dummies(df, columns=['GarageCond'])
-    df = pd.get_dummies(df, columns=['BsmtQual'])
-    df = pd.get_dummies(df, columns=['BsmtCond'])
-    df = pd.get_dummies(df, columns=['BsmtExposure'])
-    df = pd.get_dummies(df, columns=['BsmtFinType1'])
-    df = pd.get_dummies(df, columns=['BsmtFinType2'])
-    df = pd.get_dummies(df, columns=['MSZoning'])
-    df = pd.get_dummies(df, columns=['KitchenQual'])
-    df = pd.get_dummies(df, columns=['Functional'])
-    df = pd.get_dummies(df, columns=['SaleType'])
-
-    df['CentralAir'] = df['CentralAir'].map({'N': 0, 'Y': 1}).astype(int)
-    df['Street'] = df['Street'].map({'Grvl': 0, 'Pave': 1}).astype(int)
     df['PavedDrive'] = df['PavedDrive'].map({'N': 0, 'P': 1, 'Y': 2}).astype(int)
+
+    # one-hot encode categorical values
+    df = pd.get_dummies(df)
 
     return df
 
