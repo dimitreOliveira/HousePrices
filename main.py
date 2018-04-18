@@ -6,9 +6,6 @@ from methods import predict
 from dataset import load_data, pre_process_data, output_submission
 
 
-import time
-
-
 TRAIN_PATH = 'data/train_cleaned.csv'
 TEST_PATH = 'data/test_cleaned.csv'
 

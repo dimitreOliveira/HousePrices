@@ -114,7 +114,7 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
                 validation_costs.append(validation_epoch_cost)
 
             # uncomment to use tensorboard
-            # if tensorboard is True and epoch % 10 == 0:
+            # if epoch % 10 == 0:
             #     writer.add_summary(summary, epoch)
 
             if return_best is True and validation_epoch_cost < best_iteration[0]:
