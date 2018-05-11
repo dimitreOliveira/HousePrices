@@ -76,11 +76,13 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
     # uncomment to use tensorboard
     # tf.summary.scalar('train cost', train_cost)
     # tf.summary.scalar('validation cost', validation_cost)
+
     init = tf.global_variables_initializer()
 
     with tf.Session() as sess:
         # uncomment to use tensorboard
         # writer = tf.summary.FileWriter('logs/'+submission_name, sess.graph)
+
         sess.run(init)
 
         for epoch in range(num_epochs):
@@ -91,7 +93,8 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
 
             for minibatch in minibatches:
                 # uncomment to use tensorboard
-                # merge = tf.summary.merge_all()
+                merge = tf.summary.merge_all()
+
                 (minibatch_X, minibatch_Y) = minibatch
                 feed_dict = {x: minibatch_X, y: minibatch_Y}
 
@@ -99,6 +102,7 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
                 # _, summary, minibatch_train_cost, minibatch_validation_cost = sess.run(
                 #     [optimizer, merge, train_cost, validation_cost], feed_dict=feed_dict)
 
+                # comment to use tensorboard
                 _, minibatch_train_cost, minibatch_validation_cost = sess.run(
                     [optimizer, train_cost, validation_cost], feed_dict=feed_dict)
 

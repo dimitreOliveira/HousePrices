@@ -57,9 +57,10 @@ First let's take a look at how many null values we have on the train set.
 ```{r echo=FALSE}
 missing_values <- sapply(train, function(x) sum(is.na(x)))
 null_count <- data.frame(Count = missing_values, Proportion = missing_values/nrow(train))
-null_count[order(-null_count$Count),]
-```
+null_count_gteZero <- null_count[null_count$Count > 0, ]
+null_count_gteZero[order(-null_count_gteZero$Count),]
 
+```
 
 As we can see we have lots of null values among all columns, to make our work easier we'll take them out for now and latter decide how to deal with them.
 
@@ -67,17 +68,10 @@ As we can see we have lots of null values among all columns, to make our work ea
 train_non_null <- select(train, -LotFrontage, -Alley, -MasVnrType, -MasVnrArea, -FireplaceQu, -GarageType, -GarageYrBlt, -GarageFinish, -GarageQual, -GarageCond, -BsmtQual, -BsmtCond, -BsmtExposure, -BsmtFinType1, -PoolQC, -Fence, -MiscFeature, -BsmtFinType1, -BsmtFinType2, -Electrical, -BsmtFinSF2, -BsmtUnfSF, -TotalBsmtSF, -BsmtFullBath, -BsmtHalfBath, -GarageCars, -GarageArea, -MSZoning, -Utilities, -Exterior1st, -Exterior2nd,  -BsmtFinSF1, -KitchenQual, -Functional, -SaleType)
 ```
 
-New train dataset null count:
-```{r echo=FALSE}
-missing_values <- sapply(train_non_null, function(x) sum(is.na(x)))
-null_count <- data.frame(Count = missing_values, Proportion = missing_values/nrow(train))
-null_count[order(-null_count$Count),]
-```
-
 ### Label analysis
 
 Now we have our train set with no null values, so first let's take a look at how is our label feature ("SalePrice") distribution with a histogram and see the feature summary.
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE}
 ggplot(data=train_non_null, aes(train_non_null$SalePrice)) + 
   geom_histogram(col="red", aes(fill=..count..)) +
   scale_fill_gradient("Count", low="white", high="red") + 
@@ -87,6 +81,18 @@ summary(train_non_null$SalePrice)
 ```
 
 We can see some interesting properties, our label has a peak around 160000, then it starts to decline and forms a long tail ending at 75500, as our summary shows.
+
+Next we will apply a logarithmic transformation to make our distribution looks more friendly, note that now it will look more normalized, and will lose it's right side long tail.
+```{r echo=FALSE, message=FALSE}
+train_non_null$SalePrice <- log1p(train_non_null$SalePrice)
+
+ggplot(data=train_non_null, aes(train_non_null$SalePrice)) + 
+  geom_histogram(col="red", aes(fill=..count..)) +
+  scale_fill_gradient("Count", low="white", high="red") + 
+  labs(title = "Sale price histogram", x = "Sale price", y = "Count")
+
+summary(train_non_null$SalePrice)
+```
 
 ### Numerical features correlation
 
@@ -242,10 +248,10 @@ As we can see we have lots of features that have really low correlation (numeric
 Now that we have more information about the features of our dataset, we can filter out all the unwanted features and work with a cleaner dataset.
 
 ```{r echo=FALSE}
-# removin low correlation numerical
+# removing low correlation numerical
 train_clean <- select(train_non_null, -MSSubClass, -OverallCond, -LowQualFinSF, -BedroomAbvGr, -KitchenAbvGr, -EnclosedPorch, -X3SsnPorch, -ScreenPorch, -PoolArea, -MiscVal, -MoSold, -YrSold)
-# removin low variance categorical
-train_clean <- select(train_clean, -RoofStyle, -BldgType, -LandSlope, -LotConfig, -LandContour, -LotShape, -CentralAir, -Heating, -ExterCond, -RoofMatl, -HouseStyle, -Condition1, -Condition2, -Street)
+# removing low variance categorical
+train_clean <- select(train_clean, -RoofStyle, -BldgType, -LandSlope, -LotConfig, -LandContour, -Heating, -ExterCond, -RoofMatl, -Condition1, -Condition2, -Street)
 ```
 
 ### Features behavior
@@ -267,7 +273,7 @@ As the remaining missing features have low missing count, we will use a simple t
 ```{r include=FALSE}
 train_to_process_numerical <- select(train, BsmtFinSF2, BsmtUnfSF, TotalBsmtSF, BsmtFullBath, BsmtHalfBath, GarageCars, GarageArea, BsmtFinSF1)
 
-train_to_process_categorical <- select(train, MasVnrArea, GarageYrBlt, MasVnrType, GarageType, GarageFinish, GarageQual, GarageCond, BsmtQual, BsmtCond, BsmtExposure, BsmtFinType1, BsmtFinType1, BsmtFinType2, Electrical, MSZoning, Utilities, Exterior1st, Exterior2nd, KitchenQual, Functional, SaleType)
+train_to_process_categorical <- select(train, MasVnrArea, GarageYrBlt, MasVnrType, GarageType, GarageFinish, GarageQual, GarageCond, BsmtQual, BsmtCond, BsmtExposure, BsmtFinType1, BsmtFinType1, BsmtFinType2, Electrical, MSZoning, Utilities, Exterior1st, Exterior2nd, KitchenQual, Functional, Fence, Alley, PoolQC, MiscFeature, SaleType)
 ```
 
 ```{r include=FALSE}
@@ -302,8 +308,7 @@ corrplot(correlations, method="square", type = "upper")
 ```
 
 Then the categorical features.
-```{r echo=FALSE}
-# add target feature to the set
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 train_to_process_categorical <- cbind(train_to_process_categorical, select(train, SalePrice))
 
 ggplot(data=train_to_process_categorical, aes(y= SalePrice, x=MasVnrArea, fill=MasVnrArea) ) + 
@@ -425,15 +430,13 @@ ggplot(data=train_to_process_categorical, aes(y= SalePrice, x=SaleType, fill=Sal
   ggtitle("Distribution of SaleType") +  
   ylab("Sale Price") + 
   xlab("SaleType")
-
 ```
 
 As you can see we still have a number of irrelevant features, so we will also remove them.
-
 ```{r include=FALSE}
 train_to_process <- cbind(select(train_to_process_categorical, -SalePrice), train_to_process_numerical)
 
-train_final <- cbind(select(train_to_process, -Utilities, -Functional, -BsmtFinType2, -BsmtFinSF2, -BsmtHalfBath, -GarageCond, -GarageQual, -BsmtCond, -Electrical,  -MSZoning, -SalePrice), train_clean)
+train_final <- cbind(select(train_to_process, -Alley, -BsmtFinType2, -Fence, -Functional, -Utilities, -PoolQC, -BsmtHalfBath, -BsmtFinSF2, -MiscFeature, -SalePrice), train_clean)
 ```
 
 Then we will do the same process to our test set.
@@ -441,11 +444,11 @@ Then we will do the same process to our test set.
 test_non_null <- select(test, -LotFrontage, -Alley, -MasVnrType, -MasVnrArea, -FireplaceQu, -GarageType, -GarageYrBlt, -GarageFinish, -GarageQual, -GarageCond, -BsmtQual, -BsmtCond, -BsmtExposure, -BsmtFinType1, -PoolQC, -Fence, -MiscFeature, -BsmtFinType1, -BsmtFinType2, -Electrical, -BsmtFinSF2, -BsmtUnfSF, -TotalBsmtSF, -BsmtFullBath, -BsmtHalfBath, -GarageCars, -GarageArea, -MSZoning, -Utilities, -Exterior1st, -Exterior2nd,  -BsmtFinSF1, -KitchenQual, -Functional, -SaleType)
 
 test_clean <- select(test_non_null, -MSSubClass, -OverallCond, -LowQualFinSF, -BedroomAbvGr, -KitchenAbvGr, -EnclosedPorch, -X3SsnPorch, -ScreenPorch, -PoolArea, -MiscVal, -MoSold, -YrSold)
-test_clean <- select(test_clean, -RoofStyle, -BldgType, -LandSlope, -LotConfig, -LandContour, -LotShape, -CentralAir, -Heating, -ExterCond, -RoofMatl, -HouseStyle, -Condition1, -Condition2, -Street)
+test_clean <- select(test_clean, -RoofStyle, -BldgType, -LandSlope, -LotConfig, -LandContour, -Heating, -ExterCond, -RoofMatl, -Condition1, -Condition2, -Street)
 
 test_to_process_numerical <- select(test, BsmtFinSF2, BsmtUnfSF, TotalBsmtSF, BsmtFullBath, BsmtHalfBath, GarageCars, GarageArea, BsmtFinSF1)
 
-test_to_process_categorical <- select(test, MasVnrArea, GarageYrBlt, MasVnrType, GarageType, GarageFinish, GarageQual, GarageCond, BsmtQual, BsmtCond, BsmtExposure, BsmtFinType1, BsmtFinType1, BsmtFinType2, Electrical, MSZoning, Utilities, Exterior1st, Exterior2nd, KitchenQual, Functional, SaleType)
+test_to_process_categorical <- select(test, MasVnrArea, GarageYrBlt, MasVnrType, GarageType, GarageFinish, GarageQual, GarageCond, BsmtQual, BsmtCond, BsmtExposure, BsmtFinType1, BsmtFinType1, BsmtFinType2, Electrical, MSZoning, Utilities, Exterior1st, Exterior2nd, KitchenQual, Functional, Fence, Alley, PoolQC, MiscFeature, SaleType)
 
 
 for(i in 1:ncol(test_to_process_numerical)){
@@ -458,7 +461,7 @@ for(i in 1:ncol(test_to_process_categorical)){
 
 test_to_process <- cbind(test_to_process_categorical, test_to_process_numerical)
 
-test_final <- cbind(select(test_to_process, -Utilities, -Functional, -BsmtFinType2, -BsmtFinSF2, -BsmtHalfBath, -GarageCond, -GarageQual, -BsmtCond, -Electrical,  -MSZoning), test_clean)
+test_final <- cbind(select(test_to_process, -Alley, -BsmtFinType2, -Fence, -Functional, -Utilities, -PoolQC, -BsmtHalfBath, -BsmtFinSF2, -MiscFeature), test_clean)
 ```
 
 ### Export the data
@@ -467,6 +470,22 @@ After all the data cleaning and processing we can write the resulting data frame
 
 reminder the link with the tensorflow code is at: https://github.com/dimitreOliveira/HousePrices
 ```{r include=FALSE}
+test_non_null <- select(test, -LotFrontage, -Alley, -MasVnrType, -MasVnrArea, -FireplaceQu, -GarageType, -GarageYrBlt, -GarageFinish, -GarageQual, -GarageCond, -BsmtQual, -BsmtCond, -BsmtExposure, -BsmtFinType1, -PoolQC, -Fence, -MiscFeature, -BsmtFinType1, -BsmtFinType2, -Electrical, -BsmtFinSF2, -BsmtUnfSF, -TotalBsmtSF, -BsmtFullBath, -BsmtHalfBath, -GarageCars, -GarageArea, -MSZoning, -Utilities, -Exterior1st, -Exterior2nd,  -BsmtFinSF1, -KitchenQual, -Functional, -SaleType)
+
+test_to_process_numerical <- select(test, BsmtFinSF2, BsmtUnfSF, TotalBsmtSF, BsmtFullBath, BsmtHalfBath, GarageCars, GarageArea, BsmtFinSF1)
+
+test_to_process_categorical <- select(test, MasVnrArea, GarageYrBlt, MasVnrType, GarageType, GarageFinish, GarageQual, GarageCond, BsmtQual, BsmtCond, BsmtExposure, BsmtFinType1, BsmtFinType1, BsmtFinType2, Electrical, MSZoning, Utilities, Exterior1st, Exterior2nd, KitchenQual, Functional, SaleType)
+
+for(i in 1:ncol(test_to_process_numerical)){
+  test_to_process_numerical[is.na(test_to_process_numerical[,i]), i] <- mean(test_to_process_numerical[,i], na.rm = TRUE)
+}
+
+for(i in 1:ncol(test_to_process_categorical)){
+  test_to_process_categorical[is.na(test_to_process_categorical[,i]), i] <- Mode(test_to_process_categorical[,i])
+}
+
+test_to_process <- cbind(test_to_process_categorical, test_to_process_numerical)
+
 write.csv(train_final, file = "C:/Users/dimit/Desktop/Projetos/House Prices/data/train_cleaned.csv")
 write.csv(test_final, file = "C:/Users/dimit/Desktop/Projetos/House Prices/data/test_cleaned.csv")
 ```

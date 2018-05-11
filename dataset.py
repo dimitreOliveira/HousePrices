@@ -64,9 +64,6 @@ def pre_process_data(df):
     :param df: pandas data frame
     :return: processed data frame
     """
-
-    df['PavedDrive'] = df['PavedDrive'].map({'N': 0, 'P': 1, 'Y': 2}).astype(int)
-
     # one-hot encode categorical values
     df = pd.get_dummies(df)
 
