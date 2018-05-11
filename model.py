@@ -9,7 +9,6 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
           print_cost=True, plot_cost=True, l2_beta=0., keep_prob=1.0, hidden_activation='relu', return_best=False,
           minibatch_size=0, lr_decay=0):
     """
-    Implements a n-layer tensorflow neural network: LINEAR->RELU*(n times)->LINEAR->SOFTMAX.
     :param train_set: training set
     :param train_labels: training labels
     :param validation_set: validation set
@@ -93,7 +92,7 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
 
             for minibatch in minibatches:
                 # uncomment to use tensorboard
-                merge = tf.summary.merge_all()
+                # merge = tf.summary.merge_all()
 
                 (minibatch_X, minibatch_Y) = minibatch
                 feed_dict = {x: minibatch_X, y: minibatch_Y}

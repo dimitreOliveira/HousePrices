@@ -40,24 +40,6 @@ def output_submission(test_ids, predictions, id_column, predction_column, file_n
     print('Output complete')
 
 
-def replace_na_with_mode(dataset, column_name):
-    """
-    :param dataset: data set
-    :param column_name: column to perform function
-    :return: updated data set
-    """
-    dataset.loc[dataset[column_name].isnull(), column_name] = dataset[column_name].mode()[0]
-
-
-def replace_na_with_median(dataset, column_name):
-    """
-    :param dataset: data set
-    :param column_name: column to perform function
-    :return: updated data set
-    """
-    dataset.loc[dataset[column_name].isnull(), column_name] = dataset[column_name].median()
-
-
 def pre_process_data(df):
     """
     Perform a number of pre process functions on the data set

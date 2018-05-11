@@ -55,3 +55,13 @@ prediction = list(map(lambda val: float(val), predict(test_pre, parameters)))
 # uncomment if label was log transformed
 # prediction = list(map(lambda val: np.expm1(val), prediction))
 output_submission(test.Id.values, prediction, 'Id', 'SalePrice', submission_name)
+
+learning_rate = 0.001
+parameters, submission_name = model(X_train, Y_train, X_valid, Y_valid, layers_dims, num_epochs=num_epochs,
+                                    learning_rate=learning_rate, print_cost=False, plot_cost=False, l2_beta=10,
+                                    keep_prob=0.7, minibatch_size=0, return_best=True)
+print(submission_name)
+prediction = list(map(lambda val: float(val), predict(test_pre, parameters)))
+# uncomment if label was log transformed
+# prediction = list(map(lambda val: np.expm1(val), prediction))
+output_submission(test.Id.values, prediction, 'Id', 'SalePrice', submission_name)
