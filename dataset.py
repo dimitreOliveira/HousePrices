@@ -46,6 +46,7 @@ def pre_process_data(df):
     :param df: pandas data frame
     :return: processed data frame
     """
+
     # one-hot encode categorical values
     df = pd.get_dummies(df)
 

@@ -57,7 +57,7 @@ def model(train_set, train_labels, validation_set, validation_labels, layers_dim
     fw_output_train = forward_propagation(x, parameters, keep_prob, hidden_activation)
     train_cost = compute_cost(fw_output_train, y)
 
-    fw_output_valid = forward_propagation(tf_valid_dataset, parameters, keep_prob, hidden_activation)
+    fw_output_valid = forward_propagation(tf_valid_dataset, parameters, 1, hidden_activation)
     validation_cost = compute_cost(fw_output_valid, validation_labels)
 
     if l2_beta > 0:
