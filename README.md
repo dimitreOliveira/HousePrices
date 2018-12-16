@@ -1,4 +1,4 @@
-![](https://kaggle2.blob.core.windows.net/competitions/kaggle/5407/media/housesbanner.png)
+![](https://storage.googleapis.com/kaggle-competitions/kaggle/5407/media/housesbanner.png)
 
 # Deep Learning regression using Tensorflow for house prices prediction.
 
