@@ -28,16 +28,16 @@ With 79 explanatory variables describing (almost) every aspect of residential ho
 The Ames Housing dataset was compiled by Dean De Cock for use in data science education. It's an incredible alternative for data scientists looking for a modernized and expanded version of the often cited Boston Housing dataset. 
 
 ### R Dependencies:
-* [dplyr](https://dplyr.tidyverse.org/)
-* [ggplot2](https://ggplot2.tidyverse.org/)
-* [corrplot](https://cran.r-project.org/web/packages/corrplot/index.html)
+* [Dplyr](https://dplyr.tidyverse.org/)
+* [GGplot2](https://ggplot2.tidyverse.org/)
+* [Corrplot](https://cran.r-project.org/web/packages/corrplot/index.html)
 
 ### Python Dependencies:
-* [numpy](http://www.numpy.org/)
-* [pandas](http://pandas.pydata.org/)
-* [sklearn](https://scikit-learn.org/stable/)
-* [tensorflow](https://www.tensorflow.org/)
-* [matplotlib](http://matplotlib.org/)
+* [NumPy](http://www.numpy.org/)
+* [Pandas](http://pandas.pydata.org/)
+* [Sklearn](https://scikit-learn.org/stable/)
+* [Tensorflow](https://www.tensorflow.org/)
+* [Matplotlib](http://matplotlib.org/)
 
 ### To-Do:
 * The feature extraction of this work needs an overall improvement.
